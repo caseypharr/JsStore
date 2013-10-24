@@ -1,19 +1,47 @@
 
-//This library is also trying to work in the same manner of c# by using things such as function/method overriding.
+/*
+* JBase: Javascript library
+*
+* jBase.js v1.0.0
+* See https://github.com/caseypharr/jBase
+* 
+* ©Copyright 2013, Casey Pharr
+* 
+* Released under the GNU (General Public License.)
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.*
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
 
-(function () {
-	if (!String.prototype.format) {
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+(function ()
+{
+	if (!String.prototype.format)
+	{
 		var regexes = {};
-		String.prototype.format = function (parameters) {
-			for (var newString = this, args = arguments, i = args.length; --i >= 0;)
-				newString = newString.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
-			return newString;
+		String.prototype.format = function (parameters)
+		{
+			for (var formatMessage = this, args = arguments, i = args.length; --i >= 0;)
+				formatMessage = formatMessage.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
+			return formatMessage;
 		};
-		if (!String.format) {
-			String.format = function (newString, params) {
+		if (!String.format)
+		{
+			String.format = function (formatMessage, params)
+			{
 				for (var args = arguments, i = args.length; --i;)
-					newString = newString.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
-				return newString;
+					formatMessage = formatMessage.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
+				return formatMessage;
 			};
 		}
 	}
