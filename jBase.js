@@ -1,6 +1,3 @@
-/// <reference path="jquery-1.7.1.js" />
-/// <reference path="jquery-ui-1.8.20.js" />
-
 
 //This library is also trying to work in the same manner of c# by using things such as function/method overriding.
 
@@ -8,15 +5,15 @@
 	if (!String.prototype.format) {
 		var regexes = {};
 		String.prototype.format = function (parameters) {
-			for (var formatMessage = this, args = arguments, i = args.length; --i >= 0;)
-				formatMessage = formatMessage.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
-			return formatMessage;
+			for (var newString = this, args = arguments, i = args.length; --i >= 0;)
+				newString = newString.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
+			return newString;
 		};
 		if (!String.format) {
-			String.format = function (formatMessage, params) {
+			String.format = function (newString, params) {
 				for (var args = arguments, i = args.length; --i;)
-					formatMessage = formatMessage.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
-				return formatMessage;
+					newString = newString.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
+				return newString;
 			};
 		}
 	}
