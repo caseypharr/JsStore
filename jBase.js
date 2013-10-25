@@ -1,12 +1,14 @@
-
 /*
-* JBase: Javascript library
+* jDBase: Javascript library
 *
 * jBase.js v1.0.0
-* See https://github.com/caseypharr/jBase
+* See https://github.com/caseypharr/jDBase
 * 
 * ©Copyright 2013, Casey Pharr
 * 
+* email: caseypharr@outlook.com
+*
+*
 * Released under the GNU (General Public License.)
 *
 * This program is free software: you can redistribute it and/or modify
