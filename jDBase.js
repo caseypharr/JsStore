@@ -169,7 +169,6 @@
 		this.getTableRow = function()
 		{
 			var numberOfArguments,
-				numberOfRows,
 				_table = null,
 				_tableRow = null;
 
@@ -203,6 +202,41 @@
 			}
 		}
 
+		this.getColumn = function ()
+		{
+			var numberOfArguments,
+				_table = null,
+				_tableColumn = null;
+
+			//get the number of arguments given by the user. If none, then default to zero.
+			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
+
+			if (typeof arguments[0] == 'string' && arguments.length == 2)
+			{
+				_tableColumn = getTableColumnFromStorage(arguments[0], arguments[1]);
+				if (!!_tableColumn && _tableColumn instanceof Object)
+				{
+					return _tableColumn;
+				}
+				else
+				{
+					if (_tableColumn instanceof String)
+					{
+						//we had an error returned
+						console.error(String.format("A table with the name '{0}' does not exist!", arguments[0]));
+					}
+					else
+					{
+						//somthing happend, we already checked if table existed before running this, so unkoown at moment.
+						console.error(String.format("An unknown error occured. Return value:{0}!", _tableColumn));
+					}
+				}
+			}
+			else
+			{
+				console.log("You must supply one parameter of type string as tableName and an parameter of type string as the columnName.");
+			}
+		}
 	};
 
 	//#region private functions
@@ -406,11 +440,12 @@
 
 	}
 
-	function getTableColumnsFromstorage(tableName, columnName)
+	function getTableColumnFromStorage(tableName, columnName)
 	{
 		var _table = {},
 				_tableColumn = {},
 				tableDataItem,
+				row,
 				errorMsg;
 
 		console.log(String.format("Getting instance of table '{0}' to select column @columnName {1}", tableName, columnName));
@@ -428,10 +463,12 @@
 			else
 			{
 				//lets process the table now and grab all the rows. Eventually, we will have more selective options. This is for theoritcal use at moment.
-				foreach(row in _table.Rows)
+				for(row in _table.Rows)
 				{
-					_tableColumn = row[columnName];
+					_tableColumn[row] = _table.Rows[row][columnName];
 				}
+
+				return _tableColumn;
 			}
 		}
 		else
