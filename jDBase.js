@@ -1,14 +1,12 @@
+
 /*
-* jDBase: Javascript library
+* JBase: Javascript library
 *
 * jBase.js v1.0.0
-* See https://github.com/caseypharr/jDBase
+* See https://github.com/caseypharr/jBase
 * 
 * ©Copyright 2013, Casey Pharr
 * 
-* email: caseypharr@outlook.com
-*
-*
 * Released under the GNU (General Public License.)
 *
 * This program is free software: you can redistribute it and/or modify
@@ -25,6 +23,8 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/// <reference path="jquery-1.7.1.js" />
+/// <reference path="jquery-ui-1.8.20.js" />
 
 (function ()
 {
@@ -49,21 +49,22 @@
 	}
 })();
 
-(function($) {
+(function ($)
+{
 	// global is the this object, which is window when running in the usual browser environment.
 	"use strict";
 
 	var errorMsg = null;
-	
+
 	//constructor
-	$.jBase = function ()
+	$.jDBase = function ()
 	{
 		var jbase, caller,
 			self_ = {
 				key: 0,
 				useKey: "",
 				id: "",
-				bnds: {}				
+				bnds: {}
 			},
 			self = {
 				data: "",
@@ -81,7 +82,7 @@
 				_is: "jBase",
 				tables: {}
 			}
-		
+
 		this.newTable = function ()
 		{
 			var params = [],
@@ -98,7 +99,7 @@
 				case 1:
 					if (typeof arguments[0] == 'string')
 					{
-						
+
 						_table = new TableConstructor(arguments[0]);
 
 						if (typeof (_table) == 'object')
@@ -119,7 +120,7 @@
 						console.log(String.format("Created new empty table '{0}'.", arguments[0]));
 					}
 				case 4:
-					
+
 					_table = new TableConstructor(arguments[0], arguments[1], arguments[2], arguments[3]);
 
 					if (typeof (_table) == 'object')
@@ -127,7 +128,7 @@
 						console.log(String.format("Created new empty table '{0}'.", _table.tableName));
 					}
 					console.log(String.format("Created new empty table '{0}'.", arguments[0]));
-	
+
 					break;
 			}
 			//#endregion
@@ -143,14 +144,14 @@
 			//get the number of arguments given by the user. If none, then default to zero.
 			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
 
-			
+
 			if (typeof arguments[0] == 'string' && arguments.length == 1)
 			{
 				_table = getTableFromStorage(arguments[0]);
 				if (!!_table && _table instanceof Object)
 				{
-					_table.RowCount = typeof ( _table.Rows ) != 'undefined' ?
-						_table.Rows.length :0;
+					_table.RowCount = typeof (_table.Rows) != 'undefined' ?
+						_table.Rows.length : 0;
 
 					return _table;
 				}
@@ -164,12 +165,49 @@
 				console.log("You must supply one parameter of type string as the table name when using the function getTable().");
 			}
 		}
-		
+
+		this.getTableRow = function()
+		{
+			var numberOfArguments,
+				numberOfRows,
+				_table = null,
+				_tableRow = null;
+
+			//get the number of arguments given by the user. If none, then default to zero.
+			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
+
+			if (typeof arguments[0] == 'string' && arguments.length == 2)
+			{
+				_tableRow = getTableRowFromStorage(arguments[0], arguments[1]);
+				if (!!_tableRow && _tableRow instanceof Object)
+				{
+					return _tableRow;
+				}
+				else
+				{
+					if (_tableRow instanceof String)
+					{
+						//we had an error returned
+						console.error(String.format("A table with the name '{0}' does not exist or that row does not!", _tableRow));
+					}
+					else
+					{
+						//somthing happend, we already checked if table existed before running this, so unkoown at moment.
+						console.error(String.format("An unknown error occured. Return value:{0}!", _tableRow));
+					}
+				}
+			}
+			else
+			{
+				console.log("You must supply one parameter of type string as tableName and an index for the row.");
+			}
+		}
+
 	};
 
 	//#region private functions
 
-		//#region Create Table
+	//#region Create Table
 
 	//Creates a blank table that is named.
 	function creatTableOld(tableName, forceNew)  //initiliase new table that is empty and just name it.
@@ -313,7 +351,7 @@
 
 	//#endregion
 
-		//#region Get Table
+	//#region Get Table
 
 	//get a geric instance of the table.
 	function getTableFromStorage(tableName)  //initiliase new table that is empty and just name it.
@@ -336,9 +374,76 @@
 		return _table;
 	}
 
-		//#endregion
+	function getTableRowFromStorage(tableName, rowIndex)
+	{
+		var _table = {},
+			_tableRow = {},
+			tableDataItem,
+			errorMsg;
 
-		//#region miscallanious 
+		console.log(String.format("Getting instance of table '{0}' to select row @index {1}", tableName, rowIndex));
+
+		tableDataItem = localStorage.getItem(tableName);
+
+		if (!!tableDataItem)
+		{
+			_table = JSON.parse(tableDataItem);
+
+			_tableRow = _table.Rows[rowIndex];
+			if (typeof (_tableRow) !== 'object')
+			{
+				return String.format("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
+			}
+			else
+			{
+				return _tableRow;
+			}
+		}
+		else
+		{
+			return String.format("An unknown error occurs. Check to make sure that the table named '{0}' exists!", tableName);
+		}
+
+	}
+
+	function getTableColumnsFromstorage(tableName, columnName)
+	{
+		var _table = {},
+				_tableColumn = {},
+				tableDataItem,
+				errorMsg;
+
+		console.log(String.format("Getting instance of table '{0}' to select column @columnName {1}", tableName, columnName));
+
+		tableDataItem = localStorage.getItem(tableName);
+
+		if (!!tableDataItem)
+		{
+			_table = JSON.parse(tableDataItem);
+
+			if (typeof (_table) !== 'object')
+			{
+				return String.format("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
+			}
+			else
+			{
+				//lets process the table now and grab all the rows. Eventually, we will have more selective options. This is for theoritcal use at moment.
+				foreach(row in _table.Rows)
+				{
+					_tableColumn = row[columnName];
+				}
+			}
+		}
+		else
+		{
+			return String.format("An unknown error occurs. Check to make sure that the table named '{0}' exists!", tableName);
+		}
+
+	}
+
+	//#endregion
+
+	//#region miscallanious 
 
 	//check if array is multi-demensional
 	function IsArryMultiDemensional($array)
@@ -359,12 +464,12 @@
 		return false;
 	}
 
-		//#endregion 
+	//#endregion 
 
 	//#endregion
 
 })(jQuery)
-	
-var DataManager = new $.jBase();
+
+var DataManager = new $.jDBase();
 
 
