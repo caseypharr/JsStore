@@ -1,3 +1,7 @@
+jDBase - A future concept and research project to enhance localStorage client side data preservation to the next step
+
+==========================================================================
+
 The motive and end goal for jDBase was to make localStorage have a more user friendly way of communicating with 
 
 it, when it is being implemented on a bigger scale. If you are using it to store one or two custom attributes, then this would
