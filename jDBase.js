@@ -1,9 +1,9 @@
 
 /*
-* JBase: Javascript library
+* JDBase: Javascript library
 *
-* jBase.js v1.0.0
-* See https://github.com/caseypharr/jBase
+* jDBase.js v1.0.0
+* See https://github.com/caseypharr/jDBase
 * 
 * ©Copyright 2013, Casey Pharr
 * 
@@ -59,30 +59,7 @@
 	//constructor
 	$.jDBase = function ()
 	{
-		var jbase, caller,
-			self_ = {
-				key: 0,
-				useKey: "",
-				id: "",
-				bnds: {}
-			},
-			self = {
-				data: "",
-				map: "",
-				ctx: "",
-				type: "",
-				// If the data is an array, this is an 'array view' with a views array for each child 'item view'
-				// If the data is not an array, this is an 'item view' with a views 'map' object for any child nested views
-				// ._.useKey is non zero if is not an 'array view' (owning a data array). Uuse this as next key for adding to child views map
-				//get: getInstance,
-				//getIndex: getIndex,
-				//getRsc: getResource,
-				//hlp: getHelper,
-				_: self_,
-				_is: "jBase",
-				tables: {}
-			}
-
+		
 		this.newTable = function ()
 		{
 			var params = [],
@@ -169,6 +146,7 @@
 		this.getTableRow = function()
 		{
 			var numberOfArguments,
+				numberOfRows,
 				_table = null,
 				_tableRow = null;
 
