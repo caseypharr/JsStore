@@ -1,6 +1,6 @@
 
 /*
-* JDBase: Javascript library
+* JDBase: Javascript wrapper for client side storage
 *
 * jDBase.js v1.0.0
 * See https://github.com/caseypharr/jDBase
@@ -58,8 +58,7 @@
 
 	//constructor
 	$.jDBase = function ()
-	{
-		
+	{		
 		this.newTable = function ()
 		{
 			var params = [],
@@ -110,6 +109,50 @@
 			}
 			//#endregion
 
+		}
+
+		this.deletTable = function()
+		{
+			///delete the target table. Takes table name as a argument.
+			var params = [],
+				numberOfArguments,
+				tableName,
+				_table = null;
+
+			//get the number of arguments given by the user. If none, then default to zero.
+			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
+
+			//#region process the arguments
+			if(numberOfArguments == 1)
+			{
+				_instance = arguments[0];
+				if (_instance instanceof Object)
+				{
+					//sent table so remove it
+					tableName = _instance.tableName;
+				}
+				else
+				{
+					if (_instance instanceof String)
+					{
+						//sent table name.
+						tableName = _instance;
+						_table = localStorage.removeItem(tableName);
+						if (!!_table)
+						{
+							localStorage.removeItem(tableName);
+							console.error(String.format("Table removed: '{0}'", tablename))
+						}
+						else
+						{
+							console.error(String.format("The following table does not exist '{0}' !", tablename));
+						}
+					}
+				}
+				
+			}
+			
+			//#endregion
 		}
 
 		this.getTable = function ()
