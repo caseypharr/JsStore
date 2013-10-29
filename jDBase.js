@@ -28,18 +28,19 @@
 
 (function ()
 {
-	if (!String.prototype.format)
+	//used non-standard naming scheme to minimize globbering
+	if (!String.prototype.jDBaseFormat)
 	{
 		var regexes = {};
-		String.prototype.format = function (parameters)
+		String.prototype.jDBaseFormat = function (parameters)
 		{
 			for (var formatMessage = this, args = arguments, i = args.length; --i >= 0;)
 				formatMessage = formatMessage.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
 			return formatMessage;
 		};
-		if (!String.format)
+		if (!String.jDBaseFormat)
 		{
-			String.format = function (formatMessage, params)
+			String.jDBaseFormat = function (formatMessage, params)
 			{
 				for (var args = arguments, i = args.length; --i;)
 					formatMessage = formatMessage.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
@@ -50,15 +51,34 @@
 })();
 
 (function ($)
-{
-	// global is the this object, which is window when running in the usual browser environment.
+{	
 	"use strict";
 
-	var errorMsg = null;
+	var errorMsg = null,
+	globalStorageObject = null,
+	$config,
+	defaults = {
+		dataBaseName: "jDBaseDataBaseTest"
+		}
+	
+
 
 	//constructor
-	$.jDBase = function ()
-	{		
+	$.jDBase = function (settings)
+	{
+		//#region set and initiate database holder
+
+		$config = $.extend(defaults, settings)
+
+		globalStorageObject = localStorage.getItem($config.dataBaseName);
+
+		if (typeof globalStorageObject !== 'string')
+		{
+			localStorage.setItem($config.dataBaseName, JSON.stringify({ tables: [] }));
+		}
+
+		//#endregion
+
 		this.newTable = function ()
 		{
 			var params = [],
@@ -80,9 +100,9 @@
 
 						if (typeof (_table) == 'object')
 						{
-							console.log(String.format("Created new empty table '{0}'.", _table.tableName));
+							console.log(String.jDBaseFormat("Created new empty table '{0}'.", _table.tableName));
 						}
-						console.log(String.format("Created new empty table '{0}'.", arguments[0]));
+						console.log(String.jDBaseFormat("Created new empty table '{0}'.", arguments[0]));
 					}
 					break;
 				case 2:
@@ -91,9 +111,9 @@
 						_table = creatTable(arguments[0], arguments[1]); //can be called as statc or to return the table instance.
 						if (typeof (_table) == 'object')
 						{
-							console.log(String.format("Created new empty table '{0}'.", _table.tableName));
+							console.log(String.jDBaseFormat("Created new empty table '{0}'.", _table.tableName));
 						}
-						console.log(String.format("Created new empty table '{0}'.", arguments[0]));
+						console.log(String.jDBaseFormat("Created new empty table '{0}'.", arguments[0]));
 					}
 				case 4:
 
@@ -101,9 +121,9 @@
 
 					if (typeof (_table) == 'object')
 					{
-						console.log(String.format("Created new empty table '{0}'.", _table.tableName));
+						console.log(String.jDBaseFormat("Created new empty table '{0}'.", _table.tableName));
 					}
-					console.log(String.format("Created new empty table '{0}'.", arguments[0]));
+					console.log(String.jDBaseFormat("Created new empty table '{0}'.", arguments[0]));
 
 					break;
 			}
@@ -141,11 +161,11 @@
 						if (!!_table)
 						{
 							localStorage.removeItem(tableName);
-							console.error(String.format("Table removed: '{0}'", tablename))
+							console.error(String.jDBaseFormat("Table removed: '{0}'", tablename))
 						}
 						else
 						{
-							console.error(String.format("The following table does not exist '{0}' !", tablename));
+							console.error(String.jDBaseFormat("The following table does not exist '{0}' !", tablename));
 						}
 					}
 				}
@@ -177,7 +197,7 @@
 				}
 				else
 				{
-					console.error(String.format("A table with the name '{0}' does not exist!", arguments[0]));
+					console.error(String.jDBaseFormat("A table with the name '{0}' does not exist!", arguments[0]));
 				}
 			}
 			else
@@ -208,12 +228,12 @@
 					if (_tableRow instanceof String)
 					{
 						//we had an error returned
-						console.error(String.format("A table with the name '{0}' does not exist or that row does not!", _tableRow));
+						console.error(String.jDBaseFormat("A table with the name '{0}' does not exist or that row does not!", _tableRow));
 					}
 					else
 					{
 						//somthing happend, we already checked if table existed before running this, so unkoown at moment.
-						console.error(String.format("An unknown error occured. Return value:{0}!", _tableRow));
+						console.error(String.jDBaseFormat("An unknown error occured. Return value:{0}!", _tableRow));
 					}
 				}
 			}
@@ -244,12 +264,12 @@
 					if (_tableColumn instanceof String)
 					{
 						//we had an error returned
-						console.error(String.format("A table with the name '{0}' does not exist!", arguments[0]));
+						console.error(String.jDBaseFormat("A table with the name '{0}' does not exist!", arguments[0]));
 					}
 					else
 					{
 						//somthing happend, we already checked if table existed before running this, so unkoown at moment.
-						console.error(String.format("An unknown error occured. Return value:{0}!", _tableColumn));
+						console.error(String.jDBaseFormat("An unknown error occured. Return value:{0}!", _tableColumn));
 					}
 				}
 			}
@@ -270,13 +290,13 @@
 		var _table = [],
 			doesTableNameExist;  //maybe do one item that holds all. somthing like key "jBasedata" domain specific? Come back to this...
 
-		console.log(String.format("Initlializing new empty table '{0}'...", tableName));
+		console.log(String.jDBaseFormat("Initlializing new empty table '{0}'...", tableName));
 
 		doesTableNameExist = localStorage.getItem(tableName);
 
 		if (!!doesTableNameExist && !forceNew)
 		{
-			errorMsg = String.format("That table name is already used! You cannot have two tables with the name {0}", tableName);
+			errorMsg = String.jDBaseFormat("That table name is already used! You cannot have two tables with the name {0}", tableName);
 			console.error(errorMsg);
 			return errorMsg;
 		}
@@ -286,7 +306,7 @@
 			{
 				_table.tableName = tableName;
 				localStorage.setItem(tableName, JSON.stringify(_table));
-				console.log(String.format("Storing new table '{0}'.", tableName));
+				console.log(String.jDBaseFormat("Storing new table '{0}'.", tableName));
 
 				return _table;
 			}
@@ -297,25 +317,34 @@
 	function TableConstructor(tableName, columns, rows, forceNew)
 	{
 		///tableName: The name of the table, columns: Delimiter string, array, or object  with the column names, 
-		var doesTableNameExist;
+		var doesTableNameExist,
+			dataBase = [],
+		dataHolder;
 
 		this.TableName = tableName;
 		this.Columns = columns;
 		this.Rows = rows;
 		this.RowCount = 0;
 
-		doesTableNameExist = localStorage.getItem(tableName);
+		dataHolder = localStorage.getItem($config.dataBaseName);
+		if (!!dataHolder)
+		{
+			dataBase = JSON.parse(dataHolder);
+		}
+
+		doesTableNameExist = dataBase.tables[tableName];
 
 		if (!!doesTableNameExist && !forceNew)
 		{
-			errorMsg = String.format("That table name is already used! You cannot have two tables with the name {0}", tableName);
+			errorMsg = String.jDBaseFormat("That table name is already used! You cannot have two tables with the name {0}", tableName);
 			console.error(errorMsg);
 		}
 		else
 		{
 			//create the object table and store it after running JSON against it.
-			localStorage.setItem(this.TableName, JSON.stringify(this));
-			console.log(String.format("Storing new table '{0}'.", this.tableName));
+			dataBase.tables[tableName] = this;
+			localStorage.setItem($config.dataBaseName.va, dataBase);
+			console.log(String.jDBaseFormat("Storing new table '{0}'.", this.tableName));
 		}
 	}
 
@@ -388,7 +417,7 @@
 							if (columRowEntries > columns.split(",").length)
 							{
 								//to many entries per column!
-								console.log(String.format("The length of data entries in the row cannot be more than the amount of columns in the table!. Columns:{0}, RowItems:{1}  [{2}]", columns, columns.split(",").length, rows[sPosition]));
+								console.log(String.jDBaseFormat("The length of data entries in the row cannot be more than the amount of columns in the table!. Columns:{0}, RowItems:{1}  [{2}]", columns, columns.split(",").length, rows[sPosition]));
 							}
 							else
 							{
@@ -414,7 +443,7 @@
 		var _table = {},
 			tableDataItem;
 
-		console.log(String.format("Getting instance of table '{0}'...", tableName));
+		console.log(String.jDBaseFormat("Getting instance of table '{0}'...", tableName));
 
 		tableDataItem = localStorage.getItem(tableName);
 		if (!!tableDataItem)
@@ -423,7 +452,7 @@
 		}
 		else
 		{
-			errorMsg = String.format("That table name is already used! You cannot have two tables with the name {0}", tableName);
+			errorMsg = String.jDBaseFormat("That table name is already used! You cannot have two tables with the name {0}", tableName);
 			console.error(errorMsg);
 		}
 		return _table;
@@ -436,7 +465,7 @@
 			tableDataItem,
 			errorMsg;
 
-		console.log(String.format("Getting instance of table '{0}' to select row @index {1}", tableName, rowIndex));
+		console.log(String.jDBaseFormat("Getting instance of table '{0}' to select row @index {1}", tableName, rowIndex));
 
 		tableDataItem = localStorage.getItem(tableName);
 
@@ -447,7 +476,7 @@
 			_tableRow = _table.Rows[rowIndex];
 			if (typeof (_tableRow) !== 'object')
 			{
-				return String.format("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
+				return String.jDBaseFormat("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
 			}
 			else
 			{
@@ -456,7 +485,7 @@
 		}
 		else
 		{
-			return String.format("An unknown error occurs. Check to make sure that the table named '{0}' exists!", tableName);
+			return String.jDBaseFormat("An unknown error occured. Check to make sure that the table named '{0}' exists!", tableName);
 		}
 
 	}
@@ -469,7 +498,7 @@
 				row,
 				errorMsg;
 
-		console.log(String.format("Getting instance of table '{0}' to select column @columnName {1}", tableName, columnName));
+		console.log(String.jDBaseFormat("Getting instance of table '{0}' to select column @columnName {1}", tableName, columnName));
 
 		tableDataItem = localStorage.getItem(tableName);
 
@@ -479,7 +508,7 @@
 
 			if (typeof (_table) !== 'object')
 			{
-				return String.format("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
+				return String.jDBaseFormat("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
 			}
 			else
 			{
@@ -494,7 +523,7 @@
 		}
 		else
 		{
-			return String.format("An unknown error occurs. Check to make sure that the table named '{0}' exists!", tableName);
+			return String.jDBaseFormat("An unknown error occurs. Check to make sure that the table named '{0}' exists!", tableName);
 		}
 
 	}
@@ -524,10 +553,39 @@
 
 	//#endregion 
 
+	//#endregion	
+
+	//#region helpers
+
+	$.jDBase.Utility = function ()
+	{
+		this.checkAvailable = function ()
+		{
+
+		}
+
+		this.reportAllocatedStorage = function (writeToConsole)
+		{
+			//writeToConsole: default is set to true. If this is false, then it write to the document. For management and testing
+
+			/* current storage size minus 5mb */
+			if (!writeToConsole)
+			{
+				document.write(String.jDBaseFormat('Current storage size: [{0}]', (1024 * 1024 * 5 - unescape(encodeURIComponent(JSON.stringify(localStorage))).length)));
+				document.write('<br/>');
+				
+			} else
+			{
+				console.log(String.jDBaseFormat('Current storage size: [{0}]', (1024 * 1024 * 5 - unescape(encodeURIComponent(JSON.stringify(localStorage))).length)));				
+			}
+		}		
+	}
+
+
 	//#endregion
 
 })(jQuery)
 
+
+//create instance global. This should be done by the user
 var DataManager = new $.jDBase();
-
-
