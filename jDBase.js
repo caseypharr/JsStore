@@ -278,6 +278,11 @@
 				console.log("You must supply one parameter of type string as tableName and an parameter of type string as the columnName.");
 			}
 		}
+
+		this.Utility = function ()
+		{
+			return new $.jDBase.Utility();
+		}
 	};
 
 	//#region private functions
@@ -557,8 +562,9 @@
 
 	//#region helpers
 
-	$.jDBase.Utility = function ()
+	$.jDBase.Utility = function()
 	{
+		
 		this.checkAvailable = function ()
 		{
 
