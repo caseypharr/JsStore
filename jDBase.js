@@ -27,42 +27,6 @@
 /// <reference path="jquery-1.7.1.js" />
 /// <reference path="jquery-ui-1.8.20.js" />
 
-(function ()
-{
-	//used non-standard naming scheme to minimize globbering
-	if (!String.prototype.jDBaseFormat)
-	{
-		var regexes = {};
-		String.prototype.jDBaseFormat = function (parameters)
-		{
-			for (var formatMessage = this, args = arguments, i = args.length; --i >= 0;)
-				formatMessage = formatMessage.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
-			return formatMessage;
-		};
-		if (!String.jDBaseFormat)
-		{
-			String.jDBaseFormat = function (formatMessage, params)
-			{
-				for (var args = arguments, i = args.length; --i;)
-					formatMessage = formatMessage.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
-				return formatMessage;
-			};
-		}
-	}
-})();
-
-Array.prototype.contains = function (obj)
-{
-	var i = this.length;
-	while (i--)
-	{
-		if (this[i] === obj)
-		{
-			return true;
-		}
-	}
-	return false;
-}
 
 
 (function($)
@@ -214,3 +178,41 @@ Array.prototype.contains = function (obj)
 
 	//#endregion
 }(jQuery)) 
+
+(function ()
+{
+	//used non-standard naming scheme to minimize globbering
+	if (!String.prototype.jDBaseFormat)
+	{
+		var regexes = {};
+		String.prototype.jDBaseFormat = function (parameters)
+		{
+			for (var formatMessage = this, args = arguments, i = args.length; --i >= 0;)
+				formatMessage = formatMessage.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
+			return formatMessage;
+		};
+		if (!String.jDBaseFormat)
+		{
+			String.jDBaseFormat = function (formatMessage, params)
+			{
+				for (var args = arguments, i = args.length; --i;)
+					formatMessage = formatMessage.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
+				return formatMessage;
+			};
+		}
+	}
+})();
+
+Array.prototype.contains = function (obj)
+{
+	var i = this.length;
+	while (i--)
+	{
+		if (this[i] === obj)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
