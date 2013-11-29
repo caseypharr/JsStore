@@ -1,9 +1,12 @@
+/// <reference path="jquery-vsdoc.js" />
+/// <reference path="jquery-1.7.1.js" />
+/// <reference path="jquery-ui-1.8.20.js" />
 
-/*
-* JDBase: Javascript wrapper for client side storage
+
+/* JsStore: Javascript wrapper for client side storage
 *
-* jDBase.js v1.0.0
-* See https://github.com/caseypharr/jDBase
+* JsStore.js v1.0.0
+* See https://github.com/caseypharr/JsStore
 * 
 * ©Copyright 2013, Casey Pharr
 * 
@@ -23,24 +26,23 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="jquery-1.7.1.js" />
-/// <reference path="jquery-ui-1.8.20.js" />
+//#region misc
 
 (function ()
 {
 	//used non-standard naming scheme to minimize globbering
-	if (!String.prototype.jDBaseFormat)
+	if (!String.prototype.jDBaseStringFormat)
 	{
 		var regexes = {};
-		String.prototype.jDBaseFormat = function (parameters)
+		String.prototype.jDBaseStringFormat = function (parameters)
 		{
 			for (var formatMessage = this, args = arguments, i = args.length; --i >= 0;)
 				formatMessage = formatMessage.replace(regexes[i] || (regexes[i] = RegExp("\\{" + (i) + "\\}", "gm")), args[i]);
 			return formatMessage;
 		};
-		if (!String.jDBaseFormat)
+		if (!String.jDBaseStringFormat)
 		{
-			String.jDBaseFormat = function (formatMessage, params)
+			String.jDBaseStringFormat = function (formatMessage, params)
 			{
 				for (var args = arguments, i = args.length; --i;)
 					formatMessage = formatMessage.replace(regexes[i - 1] || (regexes[i - 1] = RegExp("\\{" + (i - 1) + "\\}", "gm")), args[i]);
@@ -50,548 +52,313 @@
 	}
 })();
 
-(function ($)
-{	
-	"use strict";
 
-	var errorMsg = null,
-	globalStorageObject = null,
-	$config,
-	defaults = {
-		dataBaseName: "jDBaseDataBaseTest"
+"use strict";
+
+var s;
+
+var JsStore = {
+	
+	settings: {
+		delimeter: "0x2C",
+		storagePrefix: "jstor:",
+		storageType: "localStorage"
+	},
+
+	init: function() {
+
+		if (!window.jQuery)
+		{
+			var jq = document.createElement('script'); 
+			jq.type = 'text/javascript';
+			jq.src = '//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js';  //if jQuery is not loaded, then we will grab the publically hosted libray
+			document.getElementsByTagName('head')[0].appendChild(jq);
 		}
+		if(typeof(Storage) === "undefined")
+		{
+			this.trigger("onError", "The current browser does not support the local storage API");
+		}
+	},
+	tableManager: {
+		newTable: function( tableName, columns )
+		{
+			/// <summary>Creates a new table as instanceof type "Table". The default constructor takes two arguments [TABLENAME] and [COLUMNS]. When a new table is initialized,</summary>
+			///<summary>it is returned as a instance of Table, and is also pushed into the Tables property array. This means you do not have to define it to a object at the moment. You can retrieve the tqable later in memory.</summary>
+			/// <param name="tableName" type="String">REQUIRED:The name of the table, and will be the storage key for future retrieval.</param>
+			/// <param name="columns" type="String/Object">If in string format, send a string of column names using the gloablly set delim character. If you are sending an object, the property names will be stripped out, and will be the column names.</param>
+			/// <returns type="Instance of Table">The table in context.</returns>
+			return new Table( paramObj );
+		},
+		getTable: function( params )
+		{
+			/// <summary>Creates a new table as instanceof type "Table". The default constructor excepts an object as the parameters. This object is extended ot the default settings.</summary>
+			/// <param name="options" type="Object">The settings for the constructor. Properties should be [NAME],[COLUMNS]: In array or string delim by comma formats,[ROWS]: An array of objects, with property names the column id, and then value.</param>
+			/// <returns type="Instance of Table">The table in context.</returns>
+			return JsStore.storageHandler.get( arguments );
+		},
+		setTable: function( params )
+		{
+			/// <summary>Stores the current table in the local storage database. If the table is already stored, it overwrites it by default. Change the gloab settings modify this.</summary>
+			/// <param name="type" type="string">Defines what type of storage call we will be making.</param>
+			/// <returns type="String">If a non null/string value is returned, then an error occured durring the call to set the table in storage.</returns>
+			return JsStore.storageHandler.set(type, params);
+		},
+		deleteTable: function( params )
+		{
+			
+		}
+		
+	},
+	storageHandler: {
+		get: function( type, params )
+		{
+			//cycle throug different ways to get the kesy for different types. Then retunr the 
+			//data within the localStorage object.
+
+		},
+		set: function( type, params )
+		{
+			//we need to clean up the object before we can store it. We want all non-data properties to
+			//be removed. Then we can JSON and store.
+			var data = params;
+			if(data instanceof Table)
+			{
+				var _jsonTable;
+				//go through all of the row entities, and convert them to regular data object with no functions for
+				//a JSON compatible object
+				for(var r = 0; r < params.rows.length;r++)
+				{
+					_jsonTable.push(params["rows"][r]);
+				}
+				if(!!_jsonTable && _jsonTable.length > 0)
+				{
+					localStorage.setItem( params.Name, this.serialize(_jsonTable) );  //We just stored a serialized string instance of the table
+				}
+			}
+		},
+		serialize: function(param)
+		{
+			return $.JSON.stringify(param);
+		},
+		cleanObject: function(objectInstance){
+			//we now transform the object instance to be able to be ran thorugh JSON handler.
+			//anything non-data related needs to be removed, so it can be parsed correctly.
+		},
+		restoreObject: function(objectInstance)
+		{
+
+		}
+	},	
+	helpers: {
+
+		_trigger: function (event, data)
+		{
+			//call or "invoke" a custom event of the JsStore entity
+			this[event](data);
+		},
+		_onError: function (functionCallee, stringMessage, data, error)
+		{
+			//build a error instance or object here to handle the error
+			return {
+				message: stringMessage,
+				target: target,
+				cause: data
+			}
+		}
+	}
+
+}
+
 	
 
+//#region old
+	//function $jDBase()
+	//{
+	//	this._onError = function(error)
+	//	{
+	//		console.error(error.message);
+	//		event = new Event();
+	//		event.
+	//	}
+	//	this.createTable = function (paramObj)
+	//	{
+	//		/// <summary>Creates a new table as instanceof type "Table". The default constructor excepts an object as the parameters. This object is extended ot the default settings.</summary>
+	//		/// <param name="options" type="Object">The settings for the constructor. Properties should be [NAME],[COLUMNS]: In array or string delim by comma formats,[ROWS]: An array of objects, with property names the column id, and then value.</param>
+	//		/// <returns type="Instance of Table">The table in context.</returns>
+	//		return new Table(paramObj);
+	//	}
 
-	//constructor
-	$.jDBase = function (settings)
-	{
-		//#region set and initiate database holder
+	//	this.deleteTableByName = function (tablename)
+	//	{
+	//		/// <summary>Deletes a table as instanceof type "Table".+</summary>
+	//		/// <param name="options" type="Object">The settings for the constructor. Properties should be [NAME],[COLUMNS]: In array or string delim by comma formats,[ROWS]: An array of objects, with property names the column id, and then value.</param>
+	//		/// <returns type="Instance of Table">The table in context.</returns>
+	//		return deleteTable(tableName);
+	//	}
 
-		$config = $.extend(defaults, settings)
 
-		globalStorageObject = localStorage.getItem($config.dataBaseName);
 
-		if (typeof globalStorageObject !== 'string')
-		{
-			localStorage.setItem($config.dataBaseName, JSON.stringify({ tables: [] }));
-		}
 
-		//#endregion
 
-		this.newTable = function ()
-		{
-			var params = [],
-				numberOfArguments,
-				_table = null;
-
-			//get the number of arguments given by the user. If none, then default to zero.
-			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
-
-			//#region process the arguments
-			switch (numberOfArguments)
-			{
-				//if only one argument is given, then call teh default constructor
-				case 1:
-					if (typeof arguments[0] == 'string')
-					{
-
-						_table = new TableConstructor(arguments[0]);
-
-						if (typeof (_table) == 'object')
-						{
-							console.log(String.jDBaseFormat("Created new empty table '{0}'.", _table.tableName));
-						}
-						console.log(String.jDBaseFormat("Created new empty table '{0}'.", arguments[0]));
-					}
-					break;
-				case 2:
-					if (typeof arguments[0] == 'string')
-					{
-						_table = creatTable(arguments[0], arguments[1]); //can be called as statc or to return the table instance.
-						if (typeof (_table) == 'object')
-						{
-							console.log(String.jDBaseFormat("Created new empty table '{0}'.", _table.tableName));
-						}
-						console.log(String.jDBaseFormat("Created new empty table '{0}'.", arguments[0]));
-					}
-				case 4:
-
-					_table = new TableConstructor(arguments[0], arguments[1], arguments[2], arguments[3]);
-
-					if (typeof (_table) == 'object')
-					{
-						console.log(String.jDBaseFormat("Created new empty table '{0}'.", _table.tableName));
-					}
-					console.log(String.jDBaseFormat("Created new empty table '{0}'.", arguments[0]));
-
-					break;
-			}
-			//#endregion
-
-		}
-
-		this.deletTable = function()
-		{
-			///delete the target table. Takes table name as a argument.
-			var params = [],
-				numberOfArguments,
-				tableName,
-				_table = null;
-
-			//get the number of arguments given by the user. If none, then default to zero.
-			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
-
-			//#region process the arguments
-			if(numberOfArguments == 1)
-			{
-				_instance = arguments[0];
-				if (_instance instanceof Object)
-				{
-					//sent table so remove it
-					tableName = _instance.tableName;
-				}
-				else
-				{
-					if (_instance instanceof String)
-					{
-						//sent table name.
-						tableName = _instance;
-						_table = localStorage.removeItem(tableName);
-						if (!!_table)
-						{
-							localStorage.removeItem(tableName);
-							console.error(String.jDBaseFormat("Table removed: '{0}'", tablename))
-						}
-						else
-						{
-							console.error(String.jDBaseFormat("The following table does not exist '{0}' !", tablename));
-						}
-					}
-				}
-				
-			}
+	//	function Table(optionsObj)
+	//	{
+	//		/// <summary>Creates a new table as instanceof type "Table". The default constructor excepts an object as the parameters. This object is extended ot the default settings.</summary>
+	//		/// <param name="options" type="Object">The settings for the constructor. Properties should be [NAME],[COLUMNS]: In array or string delim by comma formats,[ROWS]: An array of objects, with property names the column id, and then value.</param>
+	//		/// <returns type="Instance of Table">The table in context.</returns>
+	//		var _rows,
+	//			_columns,
+	//			_name,
+	//			defaults = {
+	//				Name: null,
+	//				Columns: [],
+	//				Rows: []
+	//			}
 			
-			//#endregion
-		}
-
-		this.getTable = function ()
-		{
-			var numberOfArguments,
-				numberOfRows,
-				_table = null;
-
-			//get the number of arguments given by the user. If none, then default to zero.
-			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
-
-
-			if (typeof arguments[0] == 'string' && arguments.length == 1)
-			{
-				_table = getTableFromStorage(arguments[0]);
-				if (!!_table && _table instanceof Object)
-				{
-					_table.RowCount = typeof (_table.Rows) != 'undefined' ?
-						_table.Rows.length : 0;
-
-					return _table;
-				}
-				else
-				{
-					console.error(String.jDBaseFormat("A table with the name '{0}' does not exist!", arguments[0]));
-				}
-			}
-			else
-			{
-				console.log("You must supply one parameter of type string as the table name when using the function getTable().");
-			}
-		}
-
-		this.getTableRow = function()
-		{
-			var numberOfArguments,
-				numberOfRows,
-				_table = null,
-				_tableRow = null;
-
-			//get the number of arguments given by the user. If none, then default to zero.
-			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
-
-			if (typeof arguments[0] == 'string' && arguments.length == 2)
-			{
-				_tableRow = getTableRowFromStorage(arguments[0], arguments[1]);
-				if (!!_tableRow && _tableRow instanceof Object)
-				{
-					return _tableRow;
-				}
-				else
-				{
-					if (_tableRow instanceof String)
-					{
-						//we had an error returned
-						console.error(String.jDBaseFormat("A table with the name '{0}' does not exist or that row does not!", _tableRow));
-					}
-					else
-					{
-						//somthing happend, we already checked if table existed before running this, so unkoown at moment.
-						console.error(String.jDBaseFormat("An unknown error occured. Return value:{0}!", _tableRow));
-					}
-				}
-			}
-			else
-			{
-				console.log("You must supply one parameter of type string as tableName and an index for the row.");
-			}
-		}
-
-		this.getColumn = function ()
-		{
-			var numberOfArguments,
-				_table = null,
-				_tableColumn = null;
-
-			//get the number of arguments given by the user. If none, then default to zero.
-			numberOfArguments = typeof (arguments) !== 'undefined' ? arguments.length : 0;
-
-			if (typeof arguments[0] == 'string' && arguments.length == 2)
-			{
-				_tableColumn = getTableColumnFromStorage(arguments[0], arguments[1]);
-				if (!!_tableColumn && _tableColumn instanceof Object)
-				{
-					return _tableColumn;
-				}
-				else
-				{
-					if (_tableColumn instanceof String)
-					{
-						//we had an error returned
-						console.error(String.jDBaseFormat("A table with the name '{0}' does not exist!", arguments[0]));
-					}
-					else
-					{
-						//somthing happend, we already checked if table existed before running this, so unkoown at moment.
-						console.error(String.jDBaseFormat("An unknown error occured. Return value:{0}!", _tableColumn));
-					}
-				}
-			}
-			else
-			{
-				console.log("You must supply one parameter of type string as tableName and an parameter of type string as the columnName.");
-			}
-		}
-
-		this.Utility = function ()
-		{
-			return new $.jDBase.Utility();
-		}
-	};
-
-	//#region private functions
-
-	//#region Create Table
-
-	//Creates a blank table that is named.
-	function creatTableOld(tableName, forceNew)  //initiliase new table that is empty and just name it.
-	{
-		var _table = [],
-			doesTableNameExist;  //maybe do one item that holds all. somthing like key "jBasedata" domain specific? Come back to this...
-
-		console.log(String.jDBaseFormat("Initlializing new empty table '{0}'...", tableName));
-
-		doesTableNameExist = localStorage.getItem(tableName);
-
-		if (!!doesTableNameExist && !forceNew)
-		{
-			errorMsg = String.jDBaseFormat("That table name is already used! You cannot have two tables with the name {0}", tableName);
-			console.error(errorMsg);
-			return errorMsg;
-		}
-		else
-		{
-			if (!!_table)
-			{
-				_table.tableName = tableName;
-				localStorage.setItem(tableName, JSON.stringify(_table));
-				console.log(String.jDBaseFormat("Storing new table '{0}'.", tableName));
-
-				return _table;
-			}
-		}
-	}
-
-	///default constructor to create  a new table
-	function TableConstructor(tableName, columns, rows, forceNew)
-	{
-		///tableName: The name of the table, columns: Delimiter string, array, or object  with the column names, 
-		var doesTableNameExist,
-			dataBase = [],
-		dataHolder;
-
-		this.TableName = tableName;
-		this.Columns = columns;
-		this.Rows = rows;
-		this.RowCount = 0;
-
-		dataHolder = localStorage.getItem($config.dataBaseName);
-		if (!!dataHolder)
-		{
-			dataBase = JSON.parse(dataHolder);
-		}
-
-		doesTableNameExist = dataBase.tables[tableName];
-
-		if (!!doesTableNameExist && !forceNew)
-		{
-			errorMsg = String.jDBaseFormat("That table name is already used! You cannot have two tables with the name {0}", tableName);
-			console.error(errorMsg);
-		}
-		else
-		{
-			//create the object table and store it after running JSON against it.
-			dataBase.tables[tableName] = this;
-			localStorage.setItem($config.dataBaseName.va, dataBase);
-			console.log(String.jDBaseFormat("Storing new table '{0}'.", this.tableName));
-		}
-	}
-
-	//arguments sent as an array. breakdown the arguments, and build the table. Example: {"UserID", "Name", "Email"}
-	function createTableFromArray(tableName, columns)
-	{
-		var cols,
-			_instance = [];
-
-		if (columns instanceof Array)
-		{
-			var cols = columns,
-				c;
-
-			for (c = 0; c < cols.length; c++)
-			{
-				var _newColumn = new Object();
-
-				_newColumn.ColumnName = cols[c];
-				_newColumn.ColumnData = new Array();
-				_newColumn.ColumnData.length = 1; //initialize array
-				_newColumn.Required = true;
-
-				_instance.push(_newColumn); //add the column object to the table instance....
-			}
-		}
-
-		return _instance;
-	}
-
-	//#region table sent as object
-	//table arguments sent as an object. breakdown the arguments, and build the table. {UserName:, Name:, Email:}
-	function createTableFromObject(tableName, tableObject)
-	{
-		if (columns instanceof Object)
-		{
-			for (var property in object)
-			{
-
-			}
-			for (c = 0; c < cols.length; c++)
-			{
-				var _newColumn = new Object();
-
-				_newColumn.ColumnName = cols[c];
-				_newColumn.ColumnData = new Array();
-				_newColumn.ColumnData.length = 1; //initialize array
-				_newColumn.Required = true;
-
-				_instance.push(_newColumn); //add the column object to the table instance....
-			}
-		}
-
-		//instance arguments sent as a string. breakdown string, and build the table. example "UserID, Name, Email"
-		if (columns instanceof String)
-		{
-			_instance[0] = columns;
-			if (data)
-			{
-				if (data instanceof String)
-				{
-					var _rows = []; //array to hold the row(s) when finished going through them.
-					//the user push a string csller through, so we need to see if multipl roms exist, or one row only
-					if (data.indexOf(";") > 0) //we now know there are multiple rows of data
-					{
-						var rows = data.split(";");
-						for (var sPosition = 0; sPosition < rows.length; sPosition++)
-						{
-							var columRowEntries = rows[sPosition].split(",");
-							if (columRowEntries > columns.split(",").length)
-							{
-								//to many entries per column!
-								console.log(String.jDBaseFormat("The length of data entries in the row cannot be more than the amount of columns in the table!. Columns:{0}, RowItems:{1}  [{2}]", columns, columns.split(",").length, rows[sPosition]));
-							}
-							else
-							{
-								_instance.push(); //now break out the columns in the current row section
-							}
-						}
-					}
-				}
-			}
-		}
-
-	}
-
-	//#endregion
-
-	//#endregion
-
-	//#region Get Table
-
-	//get a geric instance of the table.
-	function getTableFromStorage(tableName)  //initiliase new table that is empty and just name it.
-	{
-		var _table = {},
-			tableDataItem;
-
-		console.log(String.jDBaseFormat("Getting instance of table '{0}'...", tableName));
-
-		tableDataItem = localStorage.getItem(tableName);
-		if (!!tableDataItem)
-		{
-			_table = JSON.parse(tableDataItem);
-		}
-		else
-		{
-			errorMsg = String.jDBaseFormat("That table name is already used! You cannot have two tables with the name {0}", tableName);
-			console.error(errorMsg);
-		}
-		return _table;
-	}
-
-	function getTableRowFromStorage(tableName, rowIndex)
-	{
-		var _table = {},
-			_tableRow = {},
-			tableDataItem,
-			errorMsg;
-
-		console.log(String.jDBaseFormat("Getting instance of table '{0}' to select row @index {1}", tableName, rowIndex));
-
-		tableDataItem = localStorage.getItem(tableName);
-
-		if (!!tableDataItem)
-		{
-			_table = JSON.parse(tableDataItem);
-
-			_tableRow = _table.Rows[rowIndex];
-			if (typeof (_tableRow) !== 'object')
-			{
-				return String.jDBaseFormat("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
-			}
-			else
-			{
-				return _tableRow;
-			}
-		}
-		else
-		{
-			return String.jDBaseFormat("An unknown error occured. Check to make sure that the table named '{0}' exists!", tableName);
-		}
-
-	}
-
-	function getTableColumnFromStorage(tableName, columnName)
-	{
-		var _table = {},
-				_tableColumn = {},
-				tableDataItem,
-				row,
-				errorMsg;
-
-		console.log(String.jDBaseFormat("Getting instance of table '{0}' to select column @columnName {1}", tableName, columnName));
-
-		tableDataItem = localStorage.getItem(tableName);
-
-		if (!!tableDataItem)
-		{
-			_table = JSON.parse(tableDataItem);
-
-			if (typeof (_table) !== 'object')
-			{
-				return String.jDBaseFormat("This row at index '{0}' cannot be found in the table '{1}!", tableName, rowIndex);
-			}
-			else
-			{
-				//lets process the table now and grab all the rows. Eventually, we will have more selective options. This is for theoritcal use at moment.
-				for(row in _table.Rows)
-				{
-					_tableColumn[row] = _table.Rows[row][columnName];
-				}
-
-				return _tableColumn;
-			}
-		}
-		else
-		{
-			return String.jDBaseFormat("An unknown error occurs. Check to make sure that the table named '{0}' exists!", tableName);
-		}
-
-	}
-
-	//#endregion
-
-	//#region miscallanious 
-
-	//check if array is multi-demensional
-	function IsArryMultiDemensional($array)
-	{
-		if (typeof ($array) != 'undefined')
-		{
-			if ($array.length > 0)
-			{
-				if (typeof ($array[0]) != 'undefined')
-				{
-					if ($array[0] instanceof Array)
-					{
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	//#endregion 
-
-	//#endregion	
-
-	//#region helpers
-
-	$.jDBase.Utility = function()
-	{
-		
-		this.checkAvailable = function ()
-		{
-
-		}
-
-		this.reportAllocatedStorage = function (writeToConsole)
-		{
-			//writeToConsole: default is set to true. If this is false, then it write to the document. For management and testing
-
-			/* current storage size minus 5mb */
-			if (!writeToConsole)
-			{
-				document.write(String.jDBaseFormat('Current storage size: [{0}]', (1024 * 1024 * 5 - unescape(encodeURIComponent(JSON.stringify(localStorage))).length)));
-				document.write('<br/>');
-				
-			} else
-			{
-				console.log(String.jDBaseFormat('Current storage size: [{0}]', (1024 * 1024 * 5 - unescape(encodeURIComponent(JSON.stringify(localStorage))).length)));				
-			}
-		}		
-	}
-
-
-	//#endregion
-
-})(jQuery)
-
-
-//create instance global. This should be done by the user
-var DataManager = new $.jDBase();
+	//		if (!!optionsObj)
+	//		{
+	//			$.extend(defaults, optionsObj);
+	//		}		
+	//		if (!!_columns && typeof _columns === "string")
+	//		{
+	//			_columns = _columns.split($configuration.SplitCharacter);
+	//		}
+	//		if (!!data)
+	//		{
+	//			if (typeof data[0] !== "undefined")
+	//			{
+	//				//  We need an array for the rows/data. They are arrays of objects with property vlaues
+	//				//  and column as property names
+	//				var columnTest = _columns[0];
+	//				if (data[0][columnTest])
+	//				{
+	//					for (var ri = 0; ri < data.length; ri++)
+	//					{
+	//						var rowItems = []; //type row items
+
+	//						for (var property in data[ri])
+	//						{
+	//							var rowItem = new RowItem(data[ri][property]);
+	//							rowItem.Column = property;
+	//							rowItems.push(rowItem);
+	//						}
+	//						_rows.push(rowItems);
+	//					}
+	//				}
+	//			}
+	//		}
+
+	//		//apply the new properties
+	//		this.Rows = _rows;
+	//		this.Columns = _columns;
+	//		this.Name = _name;
+
+	//		//assure the instance is returned.
+	//		return this;
+	//	}
+
+	//	Table.prototype.AddRow = function (params)
+	//	{
+	//		var badData,
+	//			isValidType = typeof (params) === "object" && typeof (params.length) === "undefined";
+
+	//		// is the row an object type meaning an array or an object?
+	//		if (typeof params === "object")
+	//		{
+	//			var rowItems = [];
+	//			for (var columnName in params)
+	//			{
+	//				var rowItem = new RowItem(params[columnName]);
+	//				rowItem.Column = columnName;
+	//				rowItems.push(rowItem);
+	//			}
+	//			if (rowItems.length != undefined)
+	//			{
+	//				this.Rows.push(rowItems);
+	//			}
+
+	//		}
+	//	}
+
+	//	Table.prototype.GetRow = function (params)
+	//	{
+	
+	//	}
+
+	//	Table.prototype.DeleteRow = function (row)
+	//	{
+	//		if (typeof (arguments[0]) === "string")
+	//		{
+	//			DeleteQuesryString(arguments[0]);			
+	//		}
+	//		else
+	//		{
+	//			DeleteInstance(arguments[0]);
+	//		}
+	//	}
+
+	//	function deleteTable(args)
+	//	{
+	//		var returnVal;
+	//		switch(typeof args)
+	//		{
+	//			case "string":
+	//				returnVal = RemoveData(args);
+	//				break;
+	//			case "object":
+	//				if(!!args.length)
+	//				{
+	//					returnVal = "Error deleting table. You must provide a tablename or a table instance."
+	//				}
+	//				else
+	//				{
+	//					for(prop in args)
+	//					{
+	//						if(args["Name"] && args instanceof Table)
+	//						{
+	//							returnVal = RemoveData(args["Name"]);
+	//						}
+	//						else
+	//						{
+	//							returnVal = "Error deleting table. You must provide a tablename or a table instance. The object supplied is not of insatnce [Table]";
+	//						}
+	//					}
+	//				}
+	//				break;
+	//			default:
+	//				returnVal = "Error deleting table. You must provide a tablename or a table instance. Invalid argument passed"
+	//				break;
+	//		}
+			
+	//	}
+
+	//	function Row(rowData)
+	//	{
+	//		this.Key = null;
+	//		this.Columns = null;
+	//		this.Data = [];  //typeof RowItems		
+	//	}
+
+	//	function RowItem(item)
+	//	{
+	//		//is this possible? To break it down to rowItem
+	//		this.ItemValue = item;
+	//	}
+
+	//	function RemoveData(key)
+	//	{
+	
+	//	}
+	//}
+
+
+//#endregion	
+
+
+
+
+
+
+
+
+
+
