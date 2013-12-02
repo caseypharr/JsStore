@@ -1,47 +1,21 @@
-jDBase - A future concept and research project to enhance localStorage client side data preservation to the next step
+JsStore is a plugin I am currently working on, to extend some of 
+the libraries in jQuery UI. I have come across a certian issue many times, where 
+you need to use active UI functions such as sotable, and dragable, but also
+need to preserve the state of this functionality for the end user client side. 
+Though there are many ways you could write a solution for this, I decided to make 
+life a little easier [hence a plugin], and make a simple pluign to do this for us developers.
 
-==========================================================================
+    The plugin is still in the first phase of development, but should be coming along soon. I 
+plan on making this plugin check for the localStorage functionality, and if not able, then it uses
+cookie storage as a back up. It is being set up to work along side jQuery.sortable(), but will 
+then be extended to other UI methods. The plugin is also being written to need minimal intervention
+to get it working smoothly with your current application. This meaning, it dynamically adds
+attributes to the selectors of each sortable method call, so that the content is trackable. 
 
-The motive and end goal for jDBase was to make localStorage have a more user friendly way of communicating with 
+   If you have any suggestions, please contact me @ caseypharr@outlook.com. I would love to 
+have any user feedback and ideas for this project. Since I currently am a developer fulltime
+in my proffesional life, I am not able to partition a majority of my time to this porject. I will
+however, try my best to keep updating, and progressing this plugin until it is completed.
 
-it, when it is being implemented on a bigger scale. If you are using it to store one or two custom attributes, then this would
-
-not be very probable for you to use. It is when you have a lot more data, and complexity needed with it,
-
-that the library brings fourth it's power and use.  When cookies were the main factor of client side storage preservation,
-
-we longed for something better. Something that offered more capabilities. Local storage did just that. Though, after extensively using
-
-it, I started getting annoyed with the very clunky feel to it, and how much you had to do, for simple situations. This, I hope
-
-, will bring a different look upon localStorage, and what can be done with it. 
-
-
-I will eventually have documentation out there, to show some key examples of usage for it. Until then, it is primarily
-
-in the development process, and in turn, would not be reasonable to have documentation for it. Please follow this 
-
-project, and put fourth any key ideas, modifications, and needs/applicable want you see from it in the future.
-
-
-I know there is something more to client side storage, and am hoping this is the path to take. The real proof though, will
-
-be how the development community sees it, and if they see it in the same light I do, with the same dream that drives me.
-
-A data base feel, a data base implementation, and a familiar but new dynamic to client side data preservation.
-
-
-
-Thanks for any support, and will hope to hear some insights on this project as it progresses.
-
-I can be contacted at caseypharr@outlook.com for any conversations regarding this project.
-
-
-====================================================================
--Current Status-
-
-jDBase is currently in the very early stages of development, and will be morphing a lot in the near future. I am, at the
-
-moment, working out different philosophies and ideas that are stemming from its progression. The dynamic, I assume,
-
-will dramatically change before any beta releases are ready. At the momentum this is purely research and theoretical.
+  Thanks, and I hope this contributes to the open source community. When It is completed, I will create a Demo/API 
+  document for it's use.  Happy coding :)
