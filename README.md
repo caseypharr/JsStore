@@ -4,8 +4,8 @@ you need to use active UI functions such as sotable, and dragable, but also
 need to preserve the state of this functionality for the end user client side. 
 Though there are many ways you could write a solution for this, I decided to make 
 life a little easier [hence a plugin], and make a simple pluign to do this for us developers.
-
-    The plugin is still in the first phase of development, but should be coming along soon. I 
+    
+    The plugin is still in the first phase of development, but should be coming along soon. I
 plan on making this plugin check for the localStorage functionality, and if not able, then it uses
 cookie storage as a back up. It is being set up to work along side jQuery.sortable(), but will 
 then be extended to other UI methods. The plugin is also being written to need minimal intervention
