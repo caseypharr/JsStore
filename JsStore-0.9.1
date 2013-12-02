@@ -1,0 +1,211 @@
+/// <reference path="jquery-vsdoc.js" />
+/// <reference path="jquery-1.7.1.js" />
+/// <reference path="jquery-ui-1.8.20.js" />
+
+
+/* JsStore: Javascript wrapper for client side storage
+*
+* JsStore.js v1.0.0
+* See https://github.com/caseypharr/JsStore
+* 
+* ©Copyright 2013, Casey Pharr
+* 
+* Released under the GNU (General Public License.)
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.*
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+
+//////////////////////////////////////////////////////////
+//
+//	NOTES
+//
+//	1. use a gloabl counter, and increment all items on load, 
+//	   so we are not relying on user entering id, or another attribute to make them unique. 
+//		It will start from zero, and increment up adding attributes [reach-key] on the items they send into the plugin.
+//
+//
+//
+//
+//
+//////////////////////////////////////////////////////////
+
+"use strict";
+
+
+(function ($)
+{
+	var _config;
+	
+
+	(function ($)
+	{
+		$.reach = function ( $_items, options )
+		{
+			this.options = {};
+
+			$_items.data('reach', this);
+
+			this.init = function ($_items, options)
+			{
+				this.options = $.extend({}, $.reach.defaultOptions, options);
+				
+				this.options.domStorage = (typeof (Storage) !== "undefined");
+				
+				//only load cookie library if needed
+				//if (!this.options.domStorage)
+				//{
+				//	if (!$.cookie)
+				//	{
+				//		var jq = document.createElement('script');
+				//		jq.type = 'text/javascript';
+				//		jq.src = 'https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js';  //if jQuery.cookie is not loaded, then we will grab the publically hosted libray
+				//		document.getElementsByTagName('head')[0].appendChild(jq);
+				//	}
+				//}
+
+				//Call private function
+				//prep(element, this.options);
+
+				applySortable($_items, this.options.sortableConfig);
+
+				getState($_items);
+			};
+
+			//Public function
+			this.set = function (ids)
+			{
+				//saves to storage
+			};
+			this.get = function ()
+			{
+				//gets from storage
+			};
+
+			this.init($_items, options);
+		};
+
+		$.fn.reach = function (options)
+		{			
+
+			return new $.reach($(this), options);
+		
+		};
+
+		function applySortable($_items, config)
+		{
+
+			$_items.sortable({
+
+				stop: function (event, ui)
+				{
+					updateState($_items);
+				}
+			});
+		}
+
+		function updateState($_items)
+		{
+			
+			if (!!$_items && $_items.length)
+			{
+				var $context,
+					itemKeys;
+
+				if ($_items.prop("tagName").toLowerCase() == "ul")
+				{
+					$context = $_items.find("li");
+				}
+				else
+				{
+					$context = $_items;
+				}
+
+				itemKeys = [];  //initalizing the array
+
+				$.each($context, function (i, n)
+				{
+					itemKeys.push($(this).attr("reach-key"));  //may need to also check for ids in future. For now, use this attribute.
+				});
+				if (!!itemKeys && itemKeys.length)
+				{
+					localStorage.setItem("test", itemKeys.join(":"));
+				}
+			}
+		};
+
+		function getState($_items)
+		{
+			var $returnList,
+				$storedList,
+				tmp;			
+
+			if (localStorage.getItem("test"))
+			{
+
+				tmp = localStorage.getItem("test");
+				$storedList = tmp.split(":");
+				for (var index = 0; index < $storedList.length; index++)
+				{
+					if ($_items.find("[reach-key='" + $storedList[index] + "']"))
+					{
+						var copy = $_items.find("[reach-key='" + $storedList[index] + "']").clone();
+						$_items.find("[reach-key='" + $storedList[index] + "']").remove();
+						$_items.append(copy);
+					}
+					
+				}
+			}
+		}
+
+		function prep(selector, options)
+		{
+			
+		};
+
+
+		$.reach.defaultOptions = {
+			class: 'reach-item',
+			domStorage: undefined,
+			sortableConfig: {
+				stop:undefined 
+			}
+		}
+
+	})(jQuery);
+
+
+	$.fn.reach.config = {
+		sortable: undefined,
+		restore: undefined,
+		invoke: undefined,
+	};
+
+}(jQuery));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
