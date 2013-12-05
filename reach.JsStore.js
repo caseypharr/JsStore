@@ -112,24 +112,21 @@
 			//referencing repeat items or duplicates. 
 			$.each($_items, function (n, e)
 			{
-				if (!this.id)
-				{
+				//if (!this.id)
+				//{
 					if (!$(this).attr('reach-key'))
 					{
-						var nextKey = _uniqueID += 1;
-						$(window).data("reach-global-max", getUniqueId()); //keep track of the global counter
+						var nextKey = typeof (_uniqueID) === 'undefined' ? _uniqueID = 0 : getUniqueId();
 					}
-					else
-					{
-						//we are using the attribute [reach-key] for preserving it in local storage. Next we need to now make sure there isn't a conflicting object with this qualifier.
-						$(this).attr("propertyToStore", propertyToStore.reachKey);  
-					}
-				}
-				else
-				{
-					//we are using the attribute [id] for preserving it in local storage. Next we need to now make sure there isn't a conflicting object with this qualifier.
-					$(this).attr("propertyToStore", propertyToStore.id);
-				}
+
+					$(window).data("reach-global-max", nextKey); //keep track of the global counter
+					$(this).attr("propertyToStore", propertyToStore.reachKey);
+				//}
+				//else
+				//{
+				//	//we are using the attribute [id] for preserving it in local storage. Next we need to now make sure there isn't a conflicting object with this qualifier.
+				//	$(this).attr("propertyToStore", propertyToStore.id);
+				//}
 			});
 
 			applySortable($_items, this.options.sortableConfig, _selector);
@@ -218,13 +215,13 @@
 		{
 			$.each($elements, function(n, e)
 			{
-				if (!$(e).attr('id'))
-				{
+				//if (!$(e).attr('id'))
+				//{
 					if (!$(e).attr("reach-key"))
 					{
 						$(e).attr("reach-key", String.reachStringFormat("{0}.{1}", $_items.prop("tagName"), getUniqueId()));
 					}
-				}
+				//}
 			});
 		}
 	}
@@ -245,14 +242,15 @@
 					itemKeys,
 					_selector = $_items.selector || _selector;  //am going to extend this in later version. So placed logi like this.
 
-				if ($_items.prop("tagName").toLowerCase() == "ul")
-				{
-					$context = $_items.find("li");
-				}
-				else
-				{
-					$context = $_items;
-				}
+				//if ($_items.prop("tagName").toLowerCase() == "ul")
+				//{
+				//	$context = $_items.find("li");
+				//}
+				//else
+				//{
+				//	$context = $_items;
+				//}
+				$context = $_items.find("[reach-key]");
 
 				itemKeys = [];  //initalizing the array
 
@@ -276,17 +274,19 @@
 			$storedList,
 			tmp;			
 
-		if (localStorage.getItem( "test" ))
+		if (localStorage.getItem( $_items.selector ))
 		{
 
-			tmp = localStorage.getItem( "test" );
+			tmp = localStorage.getItem( $_items.selector );
 			$storedList = tmp.split(":");
 			for (var index = 0; index < $storedList.length; index++)
 			{
-				if ($_items.find("[reach-key='" + $storedList[index] + "']"))
+				var keyPair = $storedList[index];
+				var keyVal = keyPair.substring(keyPair.indexOf(".") + 1);
+				if ($_items.find("[reach-key='" + keyPair + "']"))
 				{
-					var copy = $_items.find("[reach-key='" + $storedList[index] + "']").clone();
-					$_items.find("[reach-key='" + $storedList[index] + "']").remove();
+					var copy = $_items.find("[reach-key='" + keyPair + "']").clone();
+					$_items.find("[reach-key='" + keyPair + "']").remove();
 					$_items.append(copy);
 				}
 					
@@ -314,6 +314,17 @@
 		}
 
 })(jQuery);	
+
+
+
+
+
+
+
+
+
+
+
 
 
 
